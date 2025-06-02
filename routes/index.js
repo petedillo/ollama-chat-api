@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { sequelize } = require('../models'); // Assuming your Sequelize models are in a models directory
+const { sequelize } = require('../models');
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
