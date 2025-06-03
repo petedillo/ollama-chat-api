@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ChatSession, Message } = require('../models');
+const ollamaService = require('../services/ollama');
 
 // GET all chat sessions
 router.get('/', async (req, res) => {
@@ -58,7 +59,14 @@ router.post('/:id/message', async (req, res) => {
     const { content, role } = req.body;
     
     // Validate chat session exists
-    const chatSession = await ChatSession.findByPk(id);
+    const chatSession = await ChatSession.findByPk(id, {
+      include: [{
+        model: Message,
+        as: 'messages',
+        order: [['createdAt', 'ASC']]
+      }]
+    });
+    
     if (!chatSession) {
       return res.status(404).json({ message: 'Chat session not found' });
     }
@@ -69,13 +77,21 @@ router.post('/:id/message', async (req, res) => {
       role: role || 'user',
       content
     });
+
+    // Get all messages for context
+    const messages = await Message.findAll({
+      where: { chatSessionId: id },
+      order: [['createdAt', 'ASC']]
+    });
+
+    // Get response from Ollama
+    const ollamaResponse = await ollamaService.chat(messages);
     
-    // For the MVP, we're just echoing back the message as the assistant
-    // In a real implementation, this would integrate with an LLM or other service
+    // Save assistant message
     const assistantMessage = await Message.create({
       chatSessionId: id,
       role: 'assistant',
-      content: `Echo: ${content}`
+      content: ollamaResponse.message.content
     });
     
     res.status(201).json({
