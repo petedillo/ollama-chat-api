@@ -7,7 +7,7 @@ const ollamaService = require('../services/ollama');
 router.get('/', async (req, res) => {
   try {
     const chatSessions = await ChatSession.findAll({
-      order: [['createdAt', 'DESC']]
+      order: [['updatedAt', 'DESC']]
     });
     res.json(chatSessions);
   } catch (error) {
@@ -40,11 +40,11 @@ router.get('/:id', async (req, res) => {
         order: [['createdAt', 'ASC']]
       }]
     });
-    
+
     if (!chatSession) {
       return res.status(404).json({ message: 'Chat session not found' });
     }
-    
+
     res.json(chatSession);
   } catch (error) {
     console.error('Error fetching chat session:', error);
@@ -57,7 +57,7 @@ router.post('/:id/message', async (req, res) => {
   try {
     const { id } = req.params;
     const { content, role } = req.body;
-    
+
     // Validate chat session exists
     const chatSession = await ChatSession.findByPk(id, {
       include: [{
@@ -66,11 +66,11 @@ router.post('/:id/message', async (req, res) => {
         order: [['createdAt', 'ASC']]
       }]
     });
-    
+
     if (!chatSession) {
       return res.status(404).json({ message: 'Chat session not found' });
     }
-    
+
     // Save user message
     const userMessage = await Message.create({
       chatSessionId: id,
@@ -86,14 +86,20 @@ router.post('/:id/message', async (req, res) => {
 
     // Get response from Ollama
     const ollamaResponse = await ollamaService.chat(messages);
-    
+
     // Save assistant message
     const assistantMessage = await Message.create({
       chatSessionId: id,
       role: 'assistant',
       content: ollamaResponse.message.content
     });
-    
+
+    await ChatSession.update({
+      updatedAt: new Date()
+    }, {
+      where: { id: chatSession.id }
+    });
+
     res.status(201).json({
       userMessage,
       assistantMessage

@@ -13,6 +13,7 @@ const chatRouter = require('./routes/chat');
 
 const app = express();
 
+const {ping} = require('./services/ollama');
 // Middleware
 app.use(logger('dev'));
 app.use(cors());
@@ -27,11 +28,18 @@ app.use('/chat', chatRouter);
 
 // Sync database
 db.sequelize.sync()
-  .then(() => {
-    console.log('Database synchronized successfully');
-  })
-  .catch(err => {
-    console.error('Failed to synchronize database:', err);
-  });
+    .then(() => {
+        return ping();
+    })
+    .then((isOllamaWorking) => {
+        console.log('Database synchronized successfully');
+        if (isOllamaWorking === true) {
+            console.log('Ollama is working');
+        }
+    })
+    .catch(err => {
+        console.error('Failed to synchronize database:', err);
+    });
+
 
 module.exports = app;

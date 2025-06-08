@@ -30,4 +30,19 @@ async function chat(messages) {
     }
 }
 
-module.exports = { chat };
+async function ping() {
+    try {
+        const response = await fetch(`${apiUrl}`, { method: 'HEAD' });
+        if (response.ok) {
+            return true;
+        } else {
+            throw new Error('Ollama API is not responding with OK');
+        }
+    } catch (error) {
+        console.error('Failed to ping Ollama:', error);
+        return false;
+    }
+}
+
+
+module.exports = { chat, ping };
