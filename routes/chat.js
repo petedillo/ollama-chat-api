@@ -110,4 +110,50 @@ router.post('/:id/message', async (req, res) => {
   }
 });
 
+router.patch('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title } = req.body;
+
+    // Validate chat session exists
+    const chatSession = await ChatSession.findByPk(id);
+
+    if (!chatSession) {
+      return res.status(404).json({ message: 'Chat session not found' });
+    }
+
+    // Update chat session
+    const updatedChatSession = await chatSession.update({
+      title: title || chatSession.title,
+      updatedAt: new Date()
+    });
+
+    res.json(updatedChatSession);
+  } catch (error) {
+    console.error('Error updating chat session:', error);
+    res.status(500).json({ message: 'Failed to update chat session', error: error.message });
+  }
+});
+
+// DELETE a chat session
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate chat session exists
+    const chatSession = await ChatSession.findByPk(id);
+
+    if (!chatSession) {
+      return res.status(404).json({ message: 'Chat session not found' });
+    }
+
+    // Delete chat session and its messages
+    await chatSession.destroy();
+    res.json({ message: 'Chat session deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting chat session:', error);
+    res.status(500).json({ message: 'Failed to delete chat session', error: error.message });
+  }
+});
+
 module.exports = router;
