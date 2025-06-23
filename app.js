@@ -8,7 +8,6 @@ require('dotenv').config();
 const db = require('./models');
 
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
 const chatRouter = require('./routes/chat');
 
 const app = express();
@@ -23,7 +22,6 @@ app.use(cookieParser());
 
 // Routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/chat', chatRouter);
 
 // Sync database

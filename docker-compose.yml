@@ -11,7 +11,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=llama_chat
       - DB_HOST=db
-      - OLLAMA_API_URL=http://192.168.1.20:11434
+      - OLLAMA_API_URL=http://192.168.0.18:11434
       - OLLAMA_MODEL=llama3
     volumes:
       - ./:/usr/src/app
