@@ -6,8 +6,8 @@ singleImageBuild(
     host: 'serverpi',
     sshCreds: 'jenkins-petedillo',
     composePath: '/home/pete/services/ollama/compose.yaml',
-    imageName: 'ollama-frontend',
-    branch: 'dev',
+    imageName: 'ollama-backend',
+    branch: 'main',
     contextPath: '.',
     platform: 'linux/arm64',
     push: true
