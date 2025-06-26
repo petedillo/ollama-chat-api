@@ -7,10 +7,7 @@ singleImageBuild(
     sshCreds: 'jenkins-petedillo',
     composePath: '/home/pete/services/ollama/compose.yaml',
     imageName: 'ollama-frontend',
-    branch: 'main',
-    buildArgs: [
-        VITE_API_BASE_URL: 'https://api.diochat.petedillo.com' // Only build-time needed vars
-    ],
+    branch: 'dev',
     contextPath: '.',
     platform: 'linux/arm64',
     push: true
