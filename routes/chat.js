@@ -85,8 +85,7 @@ router.post('/:id/message', async (req, res) => {
     });
 
     // Check if this is the first user message and generate a title if needed
-    const isFirstUserMessage = messages.filter(m => m.role === 'user').length === 1;
-    if (isFirstUserMessage && chatSession.title === 'New Chat') {
+    if (ollamaService.isFirstUserMessage(messages) && chatSession.title === 'New Chat') {
       try {
         const generatedTitle = await ollamaService.generateTitle(content);
         if (generatedTitle) {
