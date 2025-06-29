@@ -84,6 +84,19 @@ router.post('/:id/message', async (req, res) => {
       order: [['createdAt', 'ASC']]
     });
 
+    // Check if this is the first user message and generate a title if needed
+    if (ollamaService.isFirstUserMessage(messages) && chatSession.title === 'New Chat') {
+      try {
+        const generatedTitle = await ollamaService.generateTitle(content);
+        if (generatedTitle) {
+          await chatSession.update({ title: generatedTitle });
+        }
+      } catch (titleError) {
+        console.error('Error generating title:', titleError);
+        // Continue with the chat even if title generation fails
+      }
+    }
+
     // Get response from Ollama
     const ollamaResponse = await ollamaService.chat(messages);
 
@@ -94,10 +107,9 @@ router.post('/:id/message', async (req, res) => {
       content: ollamaResponse.message.content
     });
 
-    await ChatSession.update({
+    // Update the chat session's updatedAt timestamp
+    await chatSession.update({
       updatedAt: new Date()
-    }, {
-      where: { id: chatSession.id }
     });
 
     res.status(201).json({
